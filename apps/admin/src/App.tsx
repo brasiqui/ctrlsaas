@@ -12,6 +12,7 @@ import { OverviewPage } from './pages/metrics/overview'
 import { FinancialPage } from './pages/metrics/financial'
 import { CustomersPage } from './pages/metrics/customers'
 import { PlansPage } from './pages/plans'
+import { ProductsPage } from './pages/products'
 import { SubscriptionsPage } from './pages/subscriptions'
 import { SettingsPage } from './pages/settings'
 
@@ -63,6 +64,7 @@ function App() {
             <Route path="metrics/financial" element={<FinancialPage />} />
             <Route path="metrics/customers" element={<CustomersPage />} />
             <Route path="plans" element={<PlansPage />} />
+            <Route path="products" element={<ProductsPage />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

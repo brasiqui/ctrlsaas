@@ -28,8 +28,22 @@ export class ManagerPlanService {
   async getAllPlans(): Promise<PlanResponseDto[]> {
     const plans = await this.db
       .selectFrom('plans')
-      .selectAll()
-      .orderBy('created_at', 'asc')
+      .leftJoin('products', 'plans.product_id', 'products.id')
+      .select([
+        'plans.id',
+        'plans.code',
+        'plans.name',
+        'plans.description',
+        'plans.product_id',
+        'plans.features',
+        'plans.is_active',
+        'plans.created_at',
+        'plans.updated_at',
+        'products.id as product_id',
+        'products.code as product_code',
+        'products.name as product_name',
+      ])
+      .orderBy('plans.created_at', 'asc')
       .execute();
 
     return Promise.all(plans.map(async (plan) => {
@@ -44,8 +58,22 @@ export class ManagerPlanService {
   async getPlanById(id: string): Promise<PlanResponseDto> {
     const plan = await this.db
       .selectFrom('plans')
-      .selectAll()
-      .where('id', '=', id)
+      .leftJoin('products', 'plans.product_id', 'products.id')
+      .select((eb) => [
+        'plans.id',
+        'plans.code',
+        'plans.name',
+        'plans.description',
+        'plans.product_id',
+        'plans.features',
+        'plans.is_active',
+        'plans.created_at',
+        'plans.updated_at',
+        'products.id as product_id',
+        'products.code as product_code',
+        'products.name as product_name',
+      ])
+      .where('plans.id', '=', id)
       .executeTakeFirst();
 
     if (!plan) {
@@ -60,7 +88,6 @@ export class ManagerPlanService {
    * Create a new plan (draft mode)
    */
   async createPlan(dto: CreatePlanDto): Promise<PlanResponseDto> {
-    // Check if code already exists
     const existingPlan = await this.db
       .selectFrom('plans')
       .selectAll()
@@ -71,6 +98,8 @@ export class ManagerPlanService {
       throw new ConflictException(`Plan with code '${dto.code}' already exists`);
     }
 
+    await this.verifyProductExists(dto.productId);
+
     const now = new Date();
     const plan = await this.db
       .insertInto('plans')
@@ -78,6 +107,7 @@ export class ManagerPlanService {
         code: dto.code,
         name: dto.name,
         description: dto.description || null,
+        product_id: dto.productId,
         features: dto.features as any,
         is_active: false,
         created_at: now,
@@ -91,6 +121,7 @@ export class ManagerPlanService {
       module: 'ManagerPlanService',
       planId: plan.id,
       code: dto.code,
+      productId: dto.productId,
     });
 
     return this.mapPlanToDto(plan, []);
@@ -106,6 +137,10 @@ export class ManagerPlanService {
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.features !== undefined) updateData.features = dto.features;
+    if (dto.productId !== undefined) {
+      await this.verifyProductExists(dto.productId);
+      updateData.product_id = dto.productId;
+    }
 
     const plan = await this.db
       .updateTable('plans')
@@ -126,6 +161,18 @@ export class ManagerPlanService {
 
     const prices = await this.getPlanPrices(id);
     return this.mapPlanToDto(plan, prices);
+  }
+
+  private async verifyProductExists(productId: string): Promise<void> {
+    const product = await this.db
+      .selectFrom('products')
+      .select(['id'])
+      .where('id', '=', productId)
+      .executeTakeFirst();
+
+    if (!product) {
+      throw new NotFoundException(`Product not found: ${productId}`);
+    }
   }
 
   /**
@@ -356,6 +403,14 @@ export class ManagerPlanService {
       code: plan.code,
       name: plan.name,
       description: plan.description,
+      productId: plan.product_id,
+      product: plan.product_id
+        ? {
+            id: plan.product_id,
+            code: plan.product_code,
+            name: plan.product_name,
+          }
+        : null,
       features: plan.features,
       isActive: plan.is_active,
       prices: prices.map(this.mapPlanPriceToDto),

@@ -17,6 +17,9 @@ export * from './AtRiskMetricsDto';
 // Plans
 export * from './plans/CreatePlanDto';
 export * from './plans/UpdatePlanDto';
+export * from './plans/CreateProductDto';
+export * from './plans/UpdateProductDto';
+export * from './plans/ProductResponseDto';
 export * from './plans/LinkStripeDto';
 export * from './plans/LinkGatewayDto';
 export * from './plans/CreatePlanPriceDto';

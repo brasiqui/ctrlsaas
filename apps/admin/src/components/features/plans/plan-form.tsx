@@ -14,7 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useCreatePlan, useUpdatePlan } from '@/hooks/use-plans'
-import type { ManagerPlan, CreatePlanInput, PlanFeatures } from '@/types'
+import { useProducts } from '@/hooks/use-products'
+import type { ManagerPlan, CreatePlanInput, PlanFeatures, Product } from '@/types'
 
 interface PlanFormProps {
   open: boolean
@@ -43,16 +44,21 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
     code: plan?.code || '',
     name: plan?.name || '',
     description: plan?.description || '',
+    productId: plan?.productId || '',
     features: plan?.features || defaultFeatures,
   })
 
   // Update form data when plan prop changes (for edit mode)
+  const { data: products, isLoading: isLoadingProducts } = useProducts()
+  const hasProducts = Boolean(products && products.length > 0)
+
   useEffect(() => {
     if (plan) {
       setFormData({
         code: plan.code,
         name: plan.name,
         description: plan.description,
+        productId: plan.productId,
         features: plan.features,
       })
     } else {
@@ -60,11 +66,12 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
         code: '',
         name: '',
         description: '',
+        productId: products?.[0]?.id || '',
         features: defaultFeatures,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan])
+  }, [plan, products])
 
   const createMutation = useCreatePlan()
   const updateMutation = useUpdatePlan()
@@ -78,6 +85,7 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
         data: {
           name: formData.name,
           description: formData.description,
+          productId: formData.productId,
           features: formData.features,
         },
       })
@@ -128,6 +136,30 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
+            </div>
+
+            <div>
+              <Label htmlFor="productId">Produto *</Label>
+              <select
+                id="productId"
+                value={formData.productId}
+                onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+                className="mt-2 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                required
+                disabled={!hasProducts || isLoadingProducts}
+              >
+                <option value="">Selecione um produto</option>
+                {products?.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} ({product.code})
+                  </option>
+                ))}
+              </select>
+              {!hasProducts && !isLoadingProducts && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nenhum produto disponível. Crie um produto antes de cadastrar um plano.
+                </p>
+              )}
             </div>
 
             <div>

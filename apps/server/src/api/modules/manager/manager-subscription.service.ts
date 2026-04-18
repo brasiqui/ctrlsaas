@@ -269,6 +269,7 @@ export class ManagerSubscriptionService {
         code: row.plan_code,
         name: row.plan_name,
         description: row.plan_description,
+        productId: row.plan_product_id,
         features: row.plan_features,
         isActive: row.plan_is_active,
         prices: [],

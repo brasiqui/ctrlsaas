@@ -14,6 +14,8 @@ import { ImpersonateSessionsTable } from './ImpersonateSessionsTable';
 import { InvitesTable } from './InvitesTable';
 import { EmailChangeRequestsTable } from './EmailChangeRequestsTable';
 import { PaymentProviderMappingTable } from './PaymentProviderMappingTable';
+import { ProductTable } from './ProductTable';
+import { ProductUsageTable } from './ProductUsageTable';
 
 export interface Database {
   accounts: AccountTable;
@@ -32,4 +34,6 @@ export interface Database {
   invites: InvitesTable;
   email_change_requests: EmailChangeRequestsTable;
   payment_provider_mappings: PaymentProviderMappingTable;
+  products: ProductTable;
+  product_usage: ProductUsageTable;
 }

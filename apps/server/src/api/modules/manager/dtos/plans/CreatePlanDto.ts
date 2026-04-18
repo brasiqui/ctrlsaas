@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsObject, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsString, IsObject, ValidateNested, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PlanFeatures } from '@fnd/domain';
 
@@ -15,8 +15,12 @@ export class CreatePlanDto {
   description?: string;
 
   @IsNotEmpty()
+  @IsUUID()
+  productId!: string;
+
+  @IsNotEmpty()
   @IsObject()
-  @ValidateNested()
+  //@ValidateNested()
   @Type(() => Object)
   features!: PlanFeatures;
 }

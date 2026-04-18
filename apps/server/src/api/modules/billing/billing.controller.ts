@@ -9,6 +9,7 @@ import {
   CreatePortalDto,
   BillingInfoResponseDto,
   PlanResponseDto,
+  CreateProductUsageDto,
 } from './dtos';
 
 @Controller('billing')
@@ -53,6 +54,13 @@ export class BillingController {
   @Get('plans')
   async getAvailablePlans(): Promise<PlanResponseDto[]> {
     return this.billingService.getAvailablePlans();
+  }
+
+  @Post('usage')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async trackProductUsage(@Body() dto: CreateProductUsageDto): Promise<any> {
+    return this.billingService.trackProductUsage(dto);
   }
 
   @Post('webhook/:provider')

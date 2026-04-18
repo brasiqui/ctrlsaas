@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsObject, ValidateNested } from 'class-validator';
+import { IsOptional, IsString, IsUUID, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PlanFeatures } from '@fnd/domain';
 
@@ -12,8 +12,12 @@ export class UpdatePlanDto {
   description?: string;
 
   @IsOptional()
+  @IsUUID()
+  productId?: string;
+
+  @IsOptional()
   @IsObject()
-  @ValidateNested()
+  //@ValidateNested()
   @Type(() => Object)
   features?: PlanFeatures;
 }

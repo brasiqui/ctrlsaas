@@ -57,6 +57,9 @@ export function PlanCard({
             <div className="mt-2 text-sm text-muted-foreground">
               Codigo: <span className="font-mono">{plan.code}</span>
             </div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              Produto: <span className="font-mono">{plan.product?.name ?? plan.productId}</span>
+            </div>
 
             {/* Provider mapping badges */}
             {activeMappings.length > 0 && (

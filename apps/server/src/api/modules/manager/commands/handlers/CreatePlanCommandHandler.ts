@@ -22,6 +22,7 @@ export class CreatePlanCommandHandler implements ICommandHandler<CreatePlanComma
       code: command.code,
       name: command.name,
       description: command.description,
+      productId: command.productId,
       features: command.features,
     });
 

@@ -18,6 +18,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { SuperAdminGuard } from '../../guards/super-admin.guard';
 import { ManagerService } from './manager.service';
 import { ManagerPlanService } from './manager-plan.service';
+import { ManagerProductService } from './manager-product.service';
 import { ManagerSubscriptionService } from './manager-subscription.service';
 import { IPaymentGatewayFactory } from '@fnd/contracts';
 import { PaymentProvider } from '@fnd/domain';
@@ -50,6 +51,9 @@ import {
   ManualCancelDto,
   ListSubscriptionsDto,
   SubscriptionResponseDto,
+  CreateProductDto,
+  UpdateProductDto,
+  ProductResponseDto,
   GatewayProductResponseDto,
   GatewayPriceResponseDto,
   GatewayHealthResponseDto,
@@ -86,6 +90,7 @@ export class ManagerController {
   constructor(
     private readonly managerService: ManagerService,
     private readonly planService: ManagerPlanService,
+    private readonly productService: ManagerProductService,
     private readonly subscriptionService: ManagerSubscriptionService,
     @Inject('IPaymentGatewayFactory') private readonly gatewayFactory: IPaymentGatewayFactory,
     private readonly commandBus: CommandBus,
@@ -262,7 +267,14 @@ export class ManagerController {
   @HttpCode(HttpStatus.CREATED)
   async createPlan(@Body() dto: CreatePlanDto, @Request() req: any): Promise<PlanResponseDto> {
     const planId = await this.commandBus.execute(
-      new CreatePlanCommand(dto.code, dto.name, dto.description, dto.features, req.user.id),
+      new CreatePlanCommand(
+        dto.code,
+        dto.name,
+        dto.description,
+        dto.productId,
+        dto.features,
+        req.user.id,
+      ),
     );
     return this.planService.getPlanById(planId);
   }
@@ -278,9 +290,69 @@ export class ManagerController {
     @Request() req: any,
   ): Promise<PlanResponseDto> {
     await this.commandBus.execute(
-      new UpdatePlanCommand(id, dto.name, dto.description, dto.features, req.user.id),
+      new UpdatePlanCommand(id, dto.name, dto.description, dto.productId, dto.features, req.user.id),
     );
     return this.planService.getPlanById(id);
+  }
+
+  /**
+   * GET /api/v1/manager/products
+   * List all products
+   */
+  @Get('products')
+  async listProducts(): Promise<ProductResponseDto[]> {
+    return this.productService.getAllProducts();
+  }
+
+  /**
+   * GET /api/v1/manager/products/:id
+   * Get product details
+   */
+  @Get('products/:id')
+  async getProduct(@Param('id') id: string): Promise<ProductResponseDto> {
+    return this.productService.getProductById(id);
+  }
+
+  /**
+   * POST /api/v1/manager/products
+   * Create a new product
+   */
+  @Post('products')
+  @HttpCode(HttpStatus.CREATED)
+  async createProduct(@Body() dto: CreateProductDto): Promise<ProductResponseDto> {
+    return this.productService.createProduct(dto);
+  }
+
+  /**
+   * PATCH /api/v1/manager/products/:id
+   * Update product
+   */
+  @Patch('products/:id')
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+  ): Promise<ProductResponseDto> {
+    return this.productService.updateProduct(id, dto);
+  }
+
+  /**
+   * PATCH /api/v1/manager/products/:id/activate
+   * Activate product
+   */
+  @Patch('products/:id/activate')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async activateProduct(@Param('id') id: string): Promise<void> {
+    await this.productService.activateProduct(id);
+  }
+
+  /**
+   * PATCH /api/v1/manager/products/:id/deactivate
+   * Deactivate product
+   */
+  @Patch('products/:id/deactivate')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deactivateProduct(@Param('id') id: string): Promise<void> {
+    await this.productService.deactivateProduct(id);
   }
 
   /**

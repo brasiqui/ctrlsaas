@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePlans, useActivatePlan, useDeactivatePlan } from '@/hooks/use-plans'
+import { useProducts } from '@/hooks/use-products'
 import { PlanCard } from '@/components/features/plans/plan-card'
 import { PlanForm } from '@/components/features/plans/plan-form'
 import { PlanPriceForm } from '@/components/features/plans/plan-price-form'
@@ -10,12 +13,35 @@ import { LinkGatewayModal } from '@/components/features/plans/link-gateway-modal
 import type { ManagerPlan } from '@/types'
 
 export function PlansPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedProductId = searchParams.get('productId') ?? ''
+  const selectedProductFilterValue = selectedProductId || 'all'
+
   const { data: plans, isLoading } = usePlans()
+  const { data: products } = useProducts()
   const activateMutation = useActivatePlan()
   const deactivateMutation = useDeactivatePlan()
 
   const [planFormOpen, setPlanFormOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<ManagerPlan | undefined>(undefined)
+
+  const filteredPlans = selectedProductId
+    ? plans?.filter((plan) => plan.productId === selectedProductId)
+    : plans
+
+  const selectedProduct = products?.find((product) => product.id === selectedProductId)
+
+  const handleProductFilterChange = (productId: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (productId && productId !== 'all') {
+      nextParams.set('productId', productId)
+    } else {
+      nextParams.delete('productId')
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }
 
   const [priceFormOpen, setPriceFormOpen] = useState(false)
   const [priceFormPlan, setPriceFormPlan] = useState<ManagerPlan | undefined>(undefined)
@@ -54,17 +80,54 @@ export function PlansPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl md:text-3xl font-bold">Planos</h1>
           <p className="text-muted-foreground mt-1">
             Gerenciar planos de assinatura e precos
           </p>
+          {selectedProduct ? (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>Produto selecionado:</span>
+              <span className="rounded-full border border-muted px-2 py-1 text-sm text-foreground">
+                {selectedProduct.name}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleProductFilterChange('')}
+              >
+                Limpar filtro
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-3 text-sm text-muted-foreground">
+              Exibindo todos os planos. Selecione um produto para filtrar.
+            </div>
+          )}
         </div>
-        <Button onClick={handleCreatePlan}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Plano
-        </Button>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="min-w-[220px]">
+            <Select value={selectedProductFilterValue} onValueChange={handleProductFilterChange}>
+              <SelectTrigger className="w-full h-11">
+                <SelectValue placeholder="Filtrar por produto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os produtos</SelectItem>
+                {products?.map((product) => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleCreatePlan}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Plano
+          </Button>
+        </div>
       </div>
 
       {/* Plans Grid */}
@@ -79,9 +142,9 @@ export function PlansPage() {
             </div>
           ))}
         </div>
-      ) : plans && plans.length > 0 ? (
+      ) : filteredPlans && filteredPlans.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {plans
+          {filteredPlans
             .sort((a, b) => a.features.display.displayOrder - b.features.display.displayOrder)
             .map((plan) => (
               <PlanCard
@@ -97,7 +160,11 @@ export function PlansPage() {
         </div>
       ) : (
         <div className="border rounded-lg p-8 text-center text-muted-foreground">
-          Nenhum plano cadastrado. Crie o primeiro plano para comecar.
+          {selectedProduct ? (
+            <>Nenhum plano encontrado para o produto selecionado.</>
+          ) : (
+            <>Nenhum plano cadastrado. Crie o primeiro plano para começar.</>
+          )}
         </div>
       )}
 

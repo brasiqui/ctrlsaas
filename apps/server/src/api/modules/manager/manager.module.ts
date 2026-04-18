@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ManagerService } from './manager.service';
 import { ManagerPlanService } from './manager-plan.service';
+import { ManagerProductService } from './manager-product.service';
 import { ManagerSubscriptionService } from './manager-subscription.service';
 import { ManagerController } from './manager.controller';
 import { SuperAdminGuard } from '../../guards/super-admin.guard';
@@ -23,6 +24,7 @@ import { EventHandlers } from './handlers';
   providers: [
     ManagerService,
     ManagerPlanService,
+    ManagerProductService,
     ManagerSubscriptionService,
     SuperAdminGuard,
     ImpersonateSessionGuard,
@@ -30,6 +32,6 @@ import { EventHandlers } from './handlers';
     ...EventHandlers,
   ],
   controllers: [ManagerController],
-  exports: [ManagerService, ManagerPlanService, ManagerSubscriptionService],
+  exports: [ManagerService, ManagerPlanService, ManagerProductService, ManagerSubscriptionService],
 })
 export class ManagerModule {}

@@ -5,6 +5,8 @@ export { WorkspaceUserRepository } from './WorkspaceUserRepository';
 export { AuditLogRepository } from './AuditLogRepository';
 export { WebhookEventRepository } from './WebhookEventRepository';
 export { PlanRepository } from './PlanRepository';
+export { ProductRepository } from './ProductRepository';
+export { ProductUsageRepository } from './ProductUsageRepository';
 export { SubscriptionRepository } from './SubscriptionRepository';
 export { SessionRepository } from './SessionRepository';
 export { LoginAttemptRepository } from './LoginAttemptRepository';

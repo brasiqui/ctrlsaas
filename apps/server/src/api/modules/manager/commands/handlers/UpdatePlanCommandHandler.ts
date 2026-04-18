@@ -21,6 +21,7 @@ export class UpdatePlanCommandHandler implements ICommandHandler<UpdatePlanComma
     await this.planService.updatePlan(command.planId, {
       name: command.name,
       description: command.description,
+      productId: command.productId,
       features: command.features,
     });
 

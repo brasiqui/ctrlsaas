@@ -13,6 +13,7 @@ export class UpdatePlanCommand implements ICommand {
     public readonly planId: string,
     public readonly name: string | undefined,
     public readonly description: string | undefined,
+    public readonly productId: string | undefined,
     public readonly features: PlanFeatures | undefined,
     public readonly updatedBy: string,
   ) {}

@@ -13,6 +13,7 @@ export class CreatePlanCommand implements ICommand {
     public readonly code: string,
     public readonly name: string,
     public readonly description: string | undefined,
+    public readonly productId: string,
     public readonly features: PlanFeatures,
     public readonly createdBy: string,
   ) {}

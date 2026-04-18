@@ -75,6 +75,7 @@ export class PlanService implements IPlanService {
         code: result.code as PlanCode,
         name: result.name,
         description: result.description || '',
+        productId: '', // Product ID is not stored in plans table, would require additional join if needed
         features: result.features as unknown as PlanFeatures,
         isActive: result.is_active,
         createdAt: new Date(result.created_at),

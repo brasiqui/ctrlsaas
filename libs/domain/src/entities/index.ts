@@ -6,6 +6,8 @@ export { AuditLog } from './AuditLog';
 export { WebhookEvent } from './WebhookEvent';
 export { Plan } from './Plan';
 export { PlanPrice } from './PlanPrice';
+export { Product } from './Product';
+export { ProductUsage } from './ProductUsage';
 export { Subscription } from './Subscription';
 export { Session } from './Session';
 export { LoginAttempt } from './LoginAttempt';

@@ -6,6 +6,8 @@ import {
   IPlanRepository,
   ISubscriptionRepository,
   IPaymentProviderMappingRepository,
+  IProductRepository,
+  IProductUsageRepository,
 } from '@fnd/database';
 import { IPaymentGatewayFactory, IConfigurationService, IAuthorizationService } from '@fnd/contracts';
 import { Action, Resource, PaymentProvider } from '@fnd/domain';
@@ -16,6 +18,7 @@ import {
   PlanResponseDto,
   CreateCheckoutDto,
   CreatePortalDto,
+  CreateProductUsageDto,
 } from './dtos';
 
 @Injectable()
@@ -33,6 +36,10 @@ export class BillingService {
     private readonly planRepository: IPlanRepository,
     @Inject('ISubscriptionRepository')
     private readonly subscriptionRepository: ISubscriptionRepository,
+    @Inject('IProductRepository')
+    private readonly productRepository: IProductRepository,
+    @Inject('IProductUsageRepository')
+    private readonly productUsageRepository: IProductUsageRepository,
     @Inject('IPaymentGatewayFactory')
     private readonly gatewayFactory: IPaymentGatewayFactory,
     @Inject('IPaymentProviderMappingRepository')
@@ -274,5 +281,25 @@ export class BillingService {
       } : null,
       features: plan.features,
     }));
+  }
+
+  async trackProductUsage(dto: CreateProductUsageDto): Promise<any> {
+    const subscription = await this.subscriptionRepository.findById(dto.subscriptionId);
+    if (!subscription) {
+      throw new NotFoundException(`Subscription not found: ${dto.subscriptionId}`);
+    }
+
+    const product = await this.productRepository.findById(dto.productId);
+    if (!product) {
+      throw new NotFoundException(`Product not found: ${dto.productId}`);
+    }
+
+    return this.productUsageRepository.incrementUsage(
+      dto.subscriptionId,
+      dto.productId,
+      dto.metric,
+      dto.usedValue,
+      dto.limitValue ?? null,
+    );
   }
 }

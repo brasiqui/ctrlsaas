@@ -17,3 +17,5 @@ export {
   IPaymentProviderMappingRepository,
   CreatePaymentProviderMappingData,
 } from './IPaymentProviderMappingRepository';
+export { IProductRepository } from './IProductRepository';
+export { IProductUsageRepository } from './IProductUsageRepository';

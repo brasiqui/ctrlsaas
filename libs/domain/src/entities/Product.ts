@@ -1,12 +1,9 @@
-import { PlanFeatures } from '../types/PlanFeatures';
-
-export interface Plan {
+export interface Product {
   id: string;
   code: string;
   name: string;
   description: string | null;
-  features: PlanFeatures;
-  productId: string;
+  type: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

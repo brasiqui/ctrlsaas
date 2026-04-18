@@ -219,6 +219,34 @@ export interface PlanDisplayFeature {
   highlight?: boolean
 }
 
+export type ProductType = 'api' | 'web' | 'service'
+
+export interface Product {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  type: ProductType
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateProductInput {
+  code: string
+  name: string
+  description?: string
+  type: ProductType
+  isActive?: boolean
+}
+
+export interface UpdateProductInput {
+  name?: string
+  description?: string
+  type?: ProductType
+  isActive?: boolean
+}
+
 export interface PlanDisplay {
   badge?: 'popular' | 'new' | 'best-value' | null
   displayOrder: number
@@ -265,6 +293,12 @@ export interface ManagerPlan {
   code: string
   name: string
   description: string
+  productId: string
+  product?: {
+    id: string
+    code: string
+    name: string
+  }
   features: PlanFeatures
   isActive: boolean
   providerMappings?: ProviderMapping[]
@@ -326,12 +360,14 @@ export interface CreatePlanInput {
   code: string
   name: string
   description: string
+  productId: string
   features: PlanFeatures
 }
 
 export interface UpdatePlanInput {
   name?: string
   description?: string
+  productId?: string
   features?: PlanFeatures
 }
 

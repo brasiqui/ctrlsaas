@@ -17,6 +17,12 @@ export class PlanResponseDto {
   code!: string;
   name!: string;
   description?: string | null;
+  productId!: string;
+  product?: {
+    id: string;
+    code: string;
+    name: string;
+  } | null;
   features!: PlanFeatures;
   isActive!: boolean;
   prices!: PlanPriceResponseDto[];
