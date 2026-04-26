@@ -5,6 +5,7 @@ export * from './CreatePlanCommand';
 export * from './UpdatePlanCommand';
 export * from './ActivatePlanCommand';
 export * from './DeactivatePlanCommand';
+export * from './RemovePlanCommand';
 export * from './LinkStripePlanCommand';
 export * from './LinkGatewayPlanCommand';
 export * from './ExtendAccessCommand';

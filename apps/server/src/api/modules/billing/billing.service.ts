@@ -245,10 +245,22 @@ export class BillingService {
     // TODO: Implement workspaceUserRepository.countByWorkspaceId
     const usersInWorkspace = 1;
 
+    const product = plan.productId
+      ? await this.productRepository.findById(plan.productId)
+      : null;
+
     return {
       plan: {
         code: plan.code,
         name: plan.name,
+        productId: plan.productId,
+        product: product
+          ? {
+              id: product.id,
+              code: product.code,
+              name: product.name,
+            }
+          : undefined,
         features: plan.features,
       },
       subscription: subscription
@@ -268,12 +280,20 @@ export class BillingService {
   }
 
   async getAvailablePlans(): Promise<PlanResponseDto[]> {
-    const plans = await this.planRepository.findActiveWithCurrentPrices();
+    const plans = await this.planRepository.findActiveWithCurrentPricesAndProduct();
 
     return plans.map(plan => ({
       code: plan.code,
       name: plan.name,
       description: plan.description || '',
+      productId: plan.productId,
+      product: plan.product
+        ? {
+            id: plan.product.id,
+            code: plan.product.code,
+            name: plan.product.name,
+          }
+        : undefined,
       price: plan.currentPrice ? {
         amount: plan.currentPrice.amount,
         currency: plan.currentPrice.currency,

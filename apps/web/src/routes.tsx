@@ -15,6 +15,7 @@ const ConfirmEmailChangePage = lazy(() => import('@/pages/auth/confirm-email-cha
 
 const DashboardPage = lazy(() => import('@/pages/dashboard'))
 const SettingsPage = lazy(() => import('@/pages/settings'))
+const ProductsPage = lazy(() => import('@/pages/products'))
 const BillingPage = lazy(() => import('@/pages/billing'))
 
 // Admin pages
@@ -121,6 +122,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
             </ProtectedRoute>
           }
         />

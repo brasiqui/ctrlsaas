@@ -9,7 +9,7 @@ export {
   UpdateWebhookEventData,
   WebhookEventFilters,
 } from './IWebhookEventRepository';
-export { IPlanRepository, PlanWithPrice } from './IPlanRepository';
+export { IPlanRepository, PlanWithPrice, PlanWithPriceAndProduct } from './IPlanRepository';
 export { ISubscriptionRepository } from './ISubscriptionRepository';
 export { IInviteRepository, InviteFilters } from './IInviteRepository';
 export { IEmailChangeRequestRepository } from './IEmailChangeRequestRepository';

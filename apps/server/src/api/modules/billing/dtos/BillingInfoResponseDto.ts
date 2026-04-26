@@ -1,6 +1,12 @@
 export interface PlanInfoDto {
   code: string;
   name: string;
+  productId: string;
+  product?: {
+    id: string;
+    code: string;
+    name: string;
+  };
   features: {
     limits: {
       workspaces: number;

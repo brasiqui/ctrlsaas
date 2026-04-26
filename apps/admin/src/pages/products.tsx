@@ -81,7 +81,7 @@ export function ProductsPage() {
         </div>
       ) : (
         <div className="border rounded-lg p-8 text-center text-muted-foreground">
-          Nenhum produto cadastrado. Crie o primeiro produto para comecar.
+          Nenhum produto cadastrado. Crie o primeiro produto para começar.
         </div>
       )}
 

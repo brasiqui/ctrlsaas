@@ -33,7 +33,7 @@ export function QuickActions({
   loading = false,
   className,
 }: QuickActionsProps) {
-  const isFreePlan = currentPlan.code === "free" || currentPlan.price === 0
+  const isFreePlan = currentPlan.code === "FREE" || currentPlan.price === 0
   const isEnterprise = currentPlan.code === "enterprise"
   const canUpgrade = !isEnterprise
   const canDowngrade = !isFreePlan

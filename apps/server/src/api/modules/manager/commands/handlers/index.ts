@@ -10,6 +10,7 @@ import { ExtendAccessCommandHandler } from './ExtendAccessCommandHandler';
 import { GrantTrialCommandHandler } from './GrantTrialCommandHandler';
 import { ManualUpgradeCommandHandler } from './ManualUpgradeCommandHandler';
 import { ManualCancelCommandHandler } from './ManualCancelCommandHandler';
+import { RemovePlanCommandHandler } from './RemovePlanCommandHandler';
 
 export const CommandHandlers = [
   ImpersonateCommandHandler,
@@ -24,4 +25,5 @@ export const CommandHandlers = [
   GrantTrialCommandHandler,
   ManualUpgradeCommandHandler,
   ManualCancelCommandHandler,
+  RemovePlanCommandHandler,
 ];

@@ -92,6 +92,7 @@ export class ManagerPlanService {
       .selectFrom('plans')
       .selectAll()
       .where('code', '=', dto.code)
+      .where('product_id', '=', dto.productId)
       .executeTakeFirst();
 
     if (existingPlan) {
@@ -231,6 +232,83 @@ export class ManagerPlanService {
       planId: id,
     });
   }
+
+/**
+ * Remove plan definitivamente
+ */
+async removePlan(id: string, removedBy: string): Promise<void> {
+  const plan = await this.db
+    .selectFrom('plans')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst();
+
+  if (!plan) {
+    throw new NotFoundException(`Plan not found: ${id}`);
+  }
+
+  // Verificar se há assinaturas ativas vinculadas a preços deste plano
+  const activeSubscriptions = await this.db
+    .selectFrom('subscriptions')
+    .innerJoin('plan_prices', 'subscriptions.plan_price_id', 'plan_prices.id')
+    .where('plan_prices.plan_id', '=', id)
+    .where('subscriptions.status', '=', 'active')
+    .execute();
+
+  if (activeSubscriptions.length > 0) {
+    throw new BadRequestException(
+      `Cannot remove plan ${id}: active subscriptions exist`
+    );
+  }
+
+  // Buscar preços do plano
+  const prices = await this.db
+    .selectFrom('plan_prices')
+    .select(['id'])
+    .where('plan_id', '=', id)
+    .execute();
+
+  // Remover mappings de cada preço
+  for (const price of prices) {
+    await this.mappingRepo.deactivateByEntity('plan_price', price.id);
+    this.logger.info('Plan price mapping removed', {
+      operation: 'manager.remove_plan_price_mapping',
+      module: 'ManagerPlanService',
+      planId: id,
+      priceId: price.id,
+      removedBy,
+    });
+  }
+
+  // Remover mappings do plano
+  await this.mappingRepo.deactivateByEntity('plan', id);
+  this.logger.info('Plan mapping removed', {
+    operation: 'manager.remove_plan_mapping',
+    module: 'ManagerPlanService',
+    planId: id,
+    removedBy,
+  });
+
+  // Remover preços associados
+  await this.db
+    .deleteFrom('plan_prices')
+    .where('plan_id', '=', id)
+    .execute();
+
+  // Remover o plano
+  await this.db
+    .deleteFrom('plans')
+    .where('id', '=', id)
+    .execute();
+
+  this.logger.info('Plan removed', {
+    operation: 'manager.remove_plan',
+    module: 'ManagerPlanService',
+    planId: id,
+    removedBy,
+  });
+}
+
 
   /**
    * Link a gateway product to a plan using payment_provider_mappings table.

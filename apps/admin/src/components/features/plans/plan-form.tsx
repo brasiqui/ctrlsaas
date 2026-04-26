@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,51 +6,61 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { LoadingButton } from '@/components/ui/loading-button'
-import { useCreatePlan, useUpdatePlan } from '@/hooks/use-plans'
-import { useProducts } from '@/hooks/use-products'
-import type { ManagerPlan, CreatePlanInput, PlanFeatures, Product } from '@/types'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { useCreatePlan, useUpdatePlan } from "@/hooks/use-plans";
+import { useProducts } from "@/hooks/use-products";
+import type {
+  ManagerPlan,
+  CreatePlanInput,
+  PlanFeatures,
+  Product,
+} from "@/types";
 
 interface PlanFormProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  plan?: ManagerPlan
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  plan?: ManagerPlan;
 }
 
 export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
-  const isEditing = !!plan
+  const isEditing = !!plan;
 
   const defaultFeatures: PlanFeatures = {
     limits: { workspaces: 1, usersPerWorkspace: 5, storage: 10 },
-    flags: { analytics: false, customBranding: false, apiAccess: false, prioritySupport: false },
+    flags: {
+      analytics: false,
+      customBranding: false,
+      apiAccess: false,
+      prioritySupport: false,
+    },
     display: {
       badge: null,
       displayOrder: 0,
       highlighted: false,
-      ctaText: 'Começar',
-      ctaVariant: 'default',
+      ctaText: "Começar",
+      ctaVariant: "default",
       comparisonLabel: null,
       displayFeatures: [],
     },
-  }
+  };
 
   const [formData, setFormData] = useState({
-    code: plan?.code || '',
-    name: plan?.name || '',
-    description: plan?.description || '',
-    productId: plan?.productId || '',
+    code: plan?.code || "",
+    name: plan?.name || "",
+    description: plan?.description || "",
+    productId: plan?.productId || "",
     features: plan?.features || defaultFeatures,
-  })
+  });
 
   // Update form data when plan prop changes (for edit mode)
-  const { data: products, isLoading: isLoadingProducts } = useProducts()
-  const hasProducts = Boolean(products && products.length > 0)
+  const { data: products, isLoading: isLoadingProducts } = useProducts();
+  const hasProducts = Boolean(products && products.length > 0);
 
   useEffect(() => {
     if (plan) {
@@ -60,24 +70,24 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
         description: plan.description,
         productId: plan.productId,
         features: plan.features,
-      })
+      });
     } else {
       setFormData({
-        code: '',
-        name: '',
-        description: '',
-        productId: products?.[0]?.id || '',
+        code: "",
+        name: "",
+        description: "",
+        productId: products?.[0]?.id || "",
         features: defaultFeatures,
-      })
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, products])
+  }, [plan, products]);
 
-  const createMutation = useCreatePlan()
-  const updateMutation = useUpdatePlan()
+  const createMutation = useCreatePlan();
+  const updateMutation = useUpdatePlan();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (isEditing) {
       await updateMutation.mutateAsync({
@@ -88,25 +98,25 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
           productId: formData.productId,
           features: formData.features,
         },
-      })
+      });
     } else {
-      await createMutation.mutateAsync(formData as CreatePlanInput)
+      await createMutation.mutateAsync(formData as CreatePlanInput);
     }
 
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+  };
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Plano' : 'Novo Plano'}</DialogTitle>
+          <DialogTitle>{isEditing ? "Editar Plano" : "Novo Plano"}</DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Atualize as informações do plano.'
-              : 'Crie um novo plano com suas configurações.'}
+              ? "Atualize as informações do plano."
+              : "Crie um novo plano com suas configurações."}
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +127,9 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               <Input
                 id="code"
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, code: e.target.value })
+                }
                 disabled={isEditing}
                 required
               />
@@ -133,7 +145,9 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -143,8 +157,10 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               <select
                 id="productId"
                 value={formData.productId}
-                onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                className="mt-2 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                onChange={(e) =>
+                  setFormData({ ...formData, productId: e.target.value })
+                }
+                className="mt-2 select-base"
                 required
                 disabled={!hasProducts || isLoadingProducts}
               >
@@ -157,7 +173,8 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               </select>
               {!hasProducts && !isLoadingProducts && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Nenhum produto disponível. Crie um produto antes de cadastrar um plano.
+                  Nenhum produto disponível. Crie um produto antes de cadastrar
+                  um plano.
                 </p>
               )}
             </div>
@@ -167,7 +184,9 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 required
               />
             </div>
@@ -196,7 +215,9 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
                       })
                     }
                   />
-                  <p className="text-xs text-muted-foreground">-1 = ilimitado</p>
+                  <p className="text-xs text-muted-foreground">
+                    -1 = ilimitado
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="users" className="text-xs">
@@ -249,15 +270,22 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
               <Label>Features</Label>
               <div className="space-y-2">
                 {[
-                  { key: 'analytics', label: 'Analytics' },
-                  { key: 'customBranding', label: 'Custom Branding' },
-                  { key: 'apiAccess', label: 'API Access' },
-                  { key: 'prioritySupport', label: 'Priority Support' },
+                  { key: "analytics", label: "Analytics" },
+                  { key: "customBranding", label: "Custom Branding" },
+                  { key: "apiAccess", label: "API Access" },
+                  { key: "prioritySupport", label: "Priority Support" },
                 ].map((feature) => (
-                  <div key={feature.key} className="flex items-center space-x-2">
+                  <div
+                    key={feature.key}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={feature.key}
-                      checked={formData.features.flags[feature.key as keyof typeof formData.features.flags]}
+                      checked={
+                        formData.features.flags[
+                          feature.key as keyof typeof formData.features.flags
+                        ]
+                      }
                       onCheckedChange={(checked) =>
                         setFormData({
                           ...formData,
@@ -281,15 +309,19 @@ export function PlanForm({ open, onOpenChange, plan }: PlanFormProps) {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <LoadingButton type="submit" loading={isLoading}>
-              {isEditing ? 'Atualizar' : 'Criar'}
+              {isEditing ? "Atualizar" : "Criar"}
             </LoadingButton>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

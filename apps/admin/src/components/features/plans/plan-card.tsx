@@ -1,23 +1,50 @@
-import { MoreVertical, Edit, Power, PowerOff, Link, DollarSign } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import {
+  MoreVertical,
+  Edit,
+  Power,
+  PowerOff,
+  Trash2,
+  Link,
+  DollarSign,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { ManagerPlan } from '@/types'
+} from "@/components/ui/dropdown-menu";
+import type { ManagerPlan } from "@/types";
+import { useState } from "react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface PlanCardProps {
-  plan: ManagerPlan
-  onEdit: () => void
-  onActivate: () => void
-  onDeactivate: () => void
-  onAddPrice: () => void
-  onLinkGateway: () => void
+  plan: ManagerPlan;
+  onEdit: () => void;
+  onActivate: () => void;
+  onDeactivate: () => void;
+  onRemove: () => void;
+  onAddPrice: () => void;
+  onLinkGateway: () => void;
 }
 
 export function PlanCard({
@@ -25,20 +52,28 @@ export function PlanCard({
   onEdit,
   onActivate,
   onDeactivate,
+  onRemove,
   onAddPrice,
   onLinkGateway,
 }: PlanCardProps) {
-  const displayBadge = plan.features.display.badge
+  const [openRemoveDialog, setOpenRemoveDialog] = useState(false);
+  const displayBadge = plan.features.display.badge;
   const badgeVariants = {
-    popular: { label: 'Popular', variant: 'default' as const },
-    new: { label: 'Novo', variant: 'secondary' as const },
-    'best-value': { label: 'Melhor Custo', variant: 'default' as const },
+    popular: { label: "Popular", variant: "default" as const },
+    new: { label: "Novo", variant: "secondary" as const },
+    "best-value": { label: "Melhor Custo", variant: "default" as const },
+  };
+
+  const activeMappings = plan.providerMappings?.filter((m) => m.isActive) ?? [];
+
+  const confirmRemovePlan = () => {
+    onRemove()
+    setOpenRemoveDialog(false)
   }
 
-  const activeMappings = plan.providerMappings?.filter((m) => m.isActive) ?? []
-
   return (
-    <Card className={plan.features.display.highlighted ? 'border-primary' : ''}>
+    <>
+    <Card className={plan.features.display.highlighted ? "border-primary" : ""}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -49,23 +84,32 @@ export function PlanCard({
                   {badgeVariants[displayBadge].label}
                 </Badge>
               )}
-              <Badge variant={plan.isActive ? 'default' : 'secondary'}>
-                {plan.isActive ? 'Ativo' : 'Inativo'}
+              <Badge variant={plan.isActive ? "default" : "secondary"}>
+                {plan.isActive ? "Ativo" : "Inativo"}
               </Badge>
             </div>
-            <CardDescription className="mt-1">{plan.description}</CardDescription>
+            <CardDescription className="mt-1">
+              {plan.description}
+            </CardDescription>
             <div className="mt-2 text-sm text-muted-foreground">
               Codigo: <span className="font-mono">{plan.code}</span>
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
-              Produto: <span className="font-mono">{plan.product?.name ?? plan.productId}</span>
+              Produto:{" "}
+              <span className="font-mono">
+                {plan.product?.name ?? plan.productId}
+              </span>
             </div>
 
             {/* Provider mapping badges */}
             {activeMappings.length > 0 && (
               <div className="mt-2 flex items-center gap-1 flex-wrap">
                 {activeMappings.map((mapping) => (
-                  <Badge key={mapping.provider} variant="outline" className="text-xs">
+                  <Badge
+                    key={mapping.provider}
+                    variant="outline"
+                    className="text-xs"
+                  >
                     {mapping.provider} ✓
                   </Badge>
                 ))}
@@ -104,6 +148,14 @@ export function PlanCard({
                   Ativar
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setOpenRemoveDialog(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Remover
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -114,19 +166,21 @@ export function PlanCard({
           <h4 className="text-sm font-semibold mb-2">Limites</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Workspaces:</span>{' '}
-              {plan.features.limits.workspaces === -1 ? 'Ilimitado' : plan.features.limits.workspaces}
+              <span className="text-muted-foreground">Workspaces:</span>{" "}
+              {plan.features.limits.workspaces === -1
+                ? "Ilimitado"
+                : plan.features.limits.workspaces}
             </div>
             <div>
-              <span className="text-muted-foreground">Usuarios:</span>{' '}
+              <span className="text-muted-foreground">Usuarios:</span>{" "}
               {plan.features.limits.usersPerWorkspace === -1
-                ? 'Ilimitado'
+                ? "Ilimitado"
                 : plan.features.limits.usersPerWorkspace}
             </div>
             <div className="col-span-2">
-              <span className="text-muted-foreground">Storage:</span>{' '}
+              <span className="text-muted-foreground">Storage:</span>{" "}
               {plan.features.limits.storage === -1
-                ? 'Ilimitado'
+                ? "Ilimitado"
                 : `${plan.features.limits.storage} GB`}
             </div>
           </div>
@@ -135,34 +189,65 @@ export function PlanCard({
         <div>
           <h4 className="text-sm font-semibold mb-2">Features</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>Analytics: {plan.features.flags.analytics ? '✓' : '✗'}</div>
-            <div>Branding: {plan.features.flags.customBranding ? '✓' : '✗'}</div>
-            <div>API: {plan.features.flags.apiAccess ? '✓' : '✗'}</div>
-            <div>Suporte: {plan.features.flags.prioritySupport ? '✓' : '✗'}</div>
+            <div>Analytics: {plan.features.flags.analytics ? "✓" : "✗"}</div>
+            <div>
+              Branding: {plan.features.flags.customBranding ? "✓" : "✗"}
+            </div>
+            <div>API: {plan.features.flags.apiAccess ? "✓" : "✗"}</div>
+            <div>
+              Suporte: {plan.features.flags.prioritySupport ? "✓" : "✗"}
+            </div>
           </div>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold mb-2">Precos ({plan.prices.length})</h4>
+          <h4 className="text-sm font-semibold mb-2">
+            Precos ({plan.prices.length})
+          </h4>
           {plan.prices.length > 0 ? (
             <div className="space-y-1 text-sm">
               {plan.prices.map((price) => (
                 <div key={price.id} className="flex justify-between">
                   <span>
-                    {price.interval === 'monthly' ? 'Mensal' : 'Anual'}
-                    {price.isCurrent && ' (atual)'}
+                    {price.interval === "monthly" ? "Mensal" : "Anual"}
+                    {price.isCurrent && " (atual)"}
                   </span>
                   <span className="font-mono">
-                    {price.currency.toUpperCase()} {(price.amount / 100).toFixed(2)}
+                    {price.currency.toUpperCase()}{" "}
+                    {(price.amount / 100).toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhum preco cadastrado</p>
+            <p className="text-sm text-muted-foreground">
+              Nenhum preco cadastrado
+            </p>
           )}
         </div>
       </CardContent>
     </Card>
-  )
+
+    <AlertDialog open={openRemoveDialog} onOpenChange={setOpenRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover Plano</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover o plano{" "}
+              <strong>{plan.name}</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemovePlan}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      </>
+  );
 }

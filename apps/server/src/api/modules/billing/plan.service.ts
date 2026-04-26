@@ -52,6 +52,7 @@ export class PlanService implements IPlanService {
       const result = await this.db
         .selectFrom('plan_prices as pp')
         .innerJoin('plans as p', 'p.id', 'pp.plan_id')
+        .leftJoin('products as prod', 'prod.id', 'p.product_id')
         .select([
           'p.id',
           'p.code',
@@ -61,6 +62,9 @@ export class PlanService implements IPlanService {
           'p.is_active',
           'p.created_at',
           'p.updated_at',
+          'p.product_id as product_id',
+          'prod.code as product_code',
+          'prod.name as product_name',
         ])
         .where('pp.id', '=', subscription.planPriceId)
         .executeTakeFirst();
@@ -75,7 +79,7 @@ export class PlanService implements IPlanService {
         code: result.code as PlanCode,
         name: result.name,
         description: result.description || '',
-        productId: '', // Product ID is not stored in plans table, would require additional join if needed
+        productId: result.product_id,
         features: result.features as unknown as PlanFeatures,
         isActive: result.is_active,
         createdAt: new Date(result.created_at),

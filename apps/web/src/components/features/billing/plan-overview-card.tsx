@@ -45,7 +45,7 @@ export function PlanOverviewCard({
     }).format(price / 100) // Convert from cents to reais
   }
 
-  const isFreePlan = plan.code === "free" || plan.price === 0
+  const isFreePlan = plan.code === "FREE" || plan.price === 0
   const isEnterprise = plan.code === "enterprise"
   const canUpgrade = !isEnterprise
   const hasSubscription = !!subscription

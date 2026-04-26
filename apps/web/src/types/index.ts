@@ -156,12 +156,36 @@ export interface BillingPlan {
   description: string
   price: BillingPlanPrice | null
   features: PlanFeatures
+  productId: string
+  product?: {
+    id: string
+    code: string
+    name: string
+  }
+}
+
+// Product types
+export interface Product {
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  type: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 // Billing Info (from workspace billing endpoint)
 export interface BillingPlanInfo {
   code: string
   name: string
+  productId: string
+  product?: {
+    id: string
+    code: string
+    name: string
+  }
   features: PlanFeatures
 }
 

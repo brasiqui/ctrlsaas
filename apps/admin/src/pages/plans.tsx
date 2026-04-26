@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { usePlans, useActivatePlan, useDeactivatePlan } from '@/hooks/use-plans'
+import { usePlans, useActivatePlan, useDeactivatePlan, useRemovePlan } from '@/hooks/use-plans'
 import { useProducts } from '@/hooks/use-products'
 import { PlanCard } from '@/components/features/plans/plan-card'
 import { PlanForm } from '@/components/features/plans/plan-form'
@@ -21,6 +21,7 @@ export function PlansPage() {
   const { data: products } = useProducts()
   const activateMutation = useActivatePlan()
   const deactivateMutation = useDeactivatePlan()
+  const removePlanMutation = useRemovePlan()
 
   const [planFormOpen, setPlanFormOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<ManagerPlan | undefined>(undefined)
@@ -75,6 +76,10 @@ export function PlansPage() {
 
   const handleDeactivate = (plan: ManagerPlan) => {
     deactivateMutation.mutate(plan.id)
+  }
+
+  const handleRemovePlan = (plan: ManagerPlan) => {
+    removePlanMutation.mutate(plan.id)
   }
 
   return (
@@ -153,6 +158,7 @@ export function PlansPage() {
                 onEdit={() => handleEditPlan(plan)}
                 onActivate={() => handleActivate(plan)}
                 onDeactivate={() => handleDeactivate(plan)}
+                onRemove={() => handleRemovePlan(plan)}
                 onAddPrice={() => handleAddPrice(plan)}
                 onLinkGateway={() => handleLinkGateway(plan)}
               />

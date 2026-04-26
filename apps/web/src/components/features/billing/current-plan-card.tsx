@@ -75,7 +75,7 @@ export function CurrentPlanCard({
       })
     : null
 
-  const isFreePlan = plan.code === "free"
+  const isFreePlan = plan.code === "FREE"
   const canUpgrade = plan.code !== "enterprise"
   const canDowngrade = !isFreePlan
 

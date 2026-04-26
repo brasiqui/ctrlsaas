@@ -71,6 +71,7 @@ import {
   UpdatePlanCommand,
   ActivatePlanCommand,
   DeactivatePlanCommand,
+  RemovePlanCommand,
   LinkGatewayPlanCommand,
   ExtendAccessCommand,
   GrantTrialCommand,
@@ -422,6 +423,17 @@ export class ManagerController {
       ),
     );
   }
+
+
+  /**
+ * DELETE /api/v1/manager/plans/:id
+ * Remove um plano definitivamente
+ */
+@Delete('plans/:id')
+@HttpCode(HttpStatus.NO_CONTENT)
+async removePlan(@Param('id') id: string, @Request() req: any): Promise<void> {
+  await this.commandBus.execute(new RemovePlanCommand(id, req.user.id))
+}
 
   // ========================================
   // Subscriptions Management

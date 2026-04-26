@@ -6,5 +6,6 @@ export enum Resource {
   INVITE = 'invite',
   SESSION = 'session',
   AUDIT_LOG = 'audit_log',
+  PRODUCT = 'product',
   PLAN = 'plan'
 }

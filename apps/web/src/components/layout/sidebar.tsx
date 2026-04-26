@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Home, Building2, Settings, PanelLeftClose, PanelLeft, Users, Mail, Shield, FileText, CreditCard } from "lucide-react"
+import { Home, Building2, Settings, PanelLeftClose, PanelLeft, Users, Mail, Shield, FileText, CreditCard, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -78,6 +78,7 @@ export function Sidebar({
         { icon: Mail, label: 'Convites', href: '/admin/invites' },
         { icon: Shield, label: 'Sessões', href: '/admin/sessions' },
         { icon: FileText, label: 'Auditoria', href: '/admin/audit' },
+        { icon: Package, label: 'Produtos', href: '/products' },
         { icon: CreditCard, label: 'Assinatura', href: '/admin/billing' },
       ]
     }

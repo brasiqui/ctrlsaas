@@ -108,6 +108,26 @@ export function useDeactivatePlan() {
   })
 }
 
+export function useRemovePlan() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/manager/plans/${id}`)
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['manager', 'plans'] })
+      queryClient.invalidateQueries({ queryKey: ['manager', 'plans', id] })
+      toast.success('Plano removido com sucesso!')
+    },
+    onError: (error: AxiosErrorWithResponse) => {
+      const message = error.response?.data?.message || error.message || 'Erro ao remover plano'
+      console.log('Error removing plan:', error)
+      toast.error(message)
+    },
+  })
+}
+
 export function useCreatePlanPrice() {
   const queryClient = useQueryClient()
 

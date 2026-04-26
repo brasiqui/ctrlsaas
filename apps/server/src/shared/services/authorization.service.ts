@@ -69,6 +69,20 @@ const PERMISSION_MATRIX: PermissionMatrix = {
       global: [UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.ADMIN]
     }
   },
+  [Resource.PRODUCT]: {
+    [Action.CREATE]: {
+      global: [UserRole.SUPER_ADMIN]
+    },
+    [Action.UPDATE]: {
+      global: [UserRole.SUPER_ADMIN]
+    },
+    [Action.READ]: {
+      global: [UserRole.SUPER_ADMIN]
+    },
+    [Action.DELETE]: {
+      global: [UserRole.SUPER_ADMIN]
+    }
+  },
   [Resource.PLAN]: {
     [Action.CREATE]: {
       global: [UserRole.SUPER_ADMIN]

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useSearchParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -10,10 +11,13 @@ import {
   Calendar,
   CheckCircle,
   DollarSign,
+  X,
 } from "lucide-react"
 import { AppShell } from "@/components/layout/app-shell"
 import { PageHeader } from "@/components/layout/page-header"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import {
   StatCard,
   PlanOverviewCard,
@@ -26,6 +30,7 @@ import {
   useCurrentBillingInfo,
   useCreateCheckout,
   useCreatePortal,
+  useProducts,
 } from "@/hooks/use-billing"
 import { useAuthStore } from "@/stores/auth-store"
 import type { BillingPlan } from "@/types"
@@ -66,18 +71,44 @@ function transformPlanToDisplay(plan: BillingPlan): DisplayPlan {
 }
 
 export default function BillingPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const currentWorkspace = useAuthStore((state) => state.currentWorkspace)
   const [activeTab, setActiveTab] = React.useState("overview")
+  const filterProductId = searchParams.get("productId")
 
   const { data: plans, isLoading: plansLoading } = usePlans()
   const { data: billingInfo, isLoading: billingLoading } =
     useCurrentBillingInfo()
+  const { data: products } = useProducts()
   const createCheckout = useCreateCheckout()
   const createPortal = useCreatePortal()
 
+  // Get filtered product name if filtering
+  const filteredProduct = React.useMemo(() => {
+    if (!filterProductId || !products) return null
+    return products.find((p) => p.id === filterProductId)
+  }, [filterProductId, products])
+
+  const handleClearFilter = () => {
+    setSearchParams({})
+  }
+
   const displayPlans: DisplayPlan[] = React.useMemo(() => {
     if (!plans) return []
-    return plans
+    let filtered = plans
+
+    // Filter by product if productId is in query params
+    if (filterProductId) {
+      filtered = plans.filter((plan) => plan.productId === filterProductId)
+
+      // Always include FREE plan as fallback/downgrade option
+      const freePlan = plans.find((p) => p.code === 'FREE')
+      if (freePlan && !filtered.some((p) => p.code === 'FREE')) {
+        filtered = [...filtered, freePlan]
+      }
+    }
+
+    return filtered
       .map(transformPlanToDisplay)
       .sort((a, b) => {
         const order = { free: 0, pro: 1, enterprise: 2 }
@@ -86,7 +117,7 @@ export default function BillingPage() {
           (order[b.code as keyof typeof order] ?? 99)
         )
       })
-  }, [plans])
+  }, [plans, filterProductId])
 
   const currentPlan = React.useMemo(() => {
     if (!billingInfo) return displayPlans[0]
@@ -197,13 +228,35 @@ export default function BillingPage() {
   return (
     <AppShell
       currentPath="/admin/billing"
-      breadcrumb={["Administração", "Assinatura"]}
+      breadcrumb={[
+        "Administração",
+        filteredProduct ? `Assinatura - ${filteredProduct.name}` : "Assinatura",
+      ]}
     >
       <div className="space-y-6">
-        <PageHeader
-          title="Assinatura e Cobrança"
-          description="Gerencie seu plano e pagamentos"
-        />
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <PageHeader
+              title="Assinatura e Cobrança"
+              description="Gerencie seu plano e pagamentos"
+            />
+          </div>
+          {filteredProduct && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-base py-2 px-3">
+                Filtrado: {filteredProduct.name}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFilter}
+                className="h-auto"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
 
         <Tabs
           defaultValue="overview"

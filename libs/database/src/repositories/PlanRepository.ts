@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Kysely } from 'kysely';
 import { Plan, PlanPrice } from '@fnd/domain';
 import { Database } from '../types';
-import { IPlanRepository, PlanWithPrice } from '../interfaces';
+import { IPlanRepository, PlanWithPrice, PlanWithPriceAndProduct } from '../interfaces';
 
 @Injectable()
 export class PlanRepository implements IPlanRepository {
@@ -66,6 +66,7 @@ export class PlanRepository implements IPlanRepository {
         'plans.is_active',
         'plans.created_at',
         'plans.updated_at',
+        'plans.product_id as product_id',
         'plan_prices.id as price_id',
         'plan_prices.amount as price_amount',
         'plan_prices.currency as price_currency',
@@ -89,6 +90,64 @@ export class PlanRepository implements IPlanRepository {
               interval: row.price_interval || 'month',
               isCurrent: true,
               createdAt: row.price_created_at ? new Date(row.price_created_at) : new Date(),
+            }
+          : undefined,
+      };
+      return planWithPrice;
+    });
+  }
+
+  async findActiveWithCurrentPricesAndProduct(): Promise<PlanWithPriceAndProduct[]> {
+    const results = await this.db
+      .selectFrom('plans')
+      .leftJoin('plan_prices', (join) =>
+        join
+          .onRef('plan_prices.plan_id', '=', 'plans.id')
+          .on('plan_prices.is_current', '=', true)
+      )
+      .leftJoin('products', 'plans.product_id', 'products.id')
+      .select([
+        'plans.id',
+        'plans.code',
+        'plans.name',
+        'plans.description',
+        'plans.features',
+        'plans.is_active',
+        'plans.created_at',
+        'plans.updated_at',
+        'plans.product_id as product_id',
+        'plan_prices.id as price_id',
+        'plan_prices.amount as price_amount',
+        'plan_prices.currency as price_currency',
+        'plan_prices.interval as price_interval',
+        'plan_prices.created_at as price_created_at',
+        'products.code as product_code',
+        'products.name as product_name',
+      ])
+      .where('plans.is_active', '=', true)
+      .orderBy('plans.created_at', 'asc')
+      .execute();
+
+    return results.map((row) => {
+      const plan = this.mapToEntity(row);
+      const planWithPrice: PlanWithPriceAndProduct = {
+        ...plan,
+        currentPrice: row.price_id && row.price_amount !== null
+          ? {
+              id: row.price_id,
+              planId: row.id,
+              amount: row.price_amount,
+              currency: row.price_currency || 'brl',
+              interval: row.price_interval || 'month',
+              isCurrent: true,
+              createdAt: row.price_created_at ? new Date(row.price_created_at) : new Date(),
+            }
+          : undefined,
+        product: row.product_id
+          ? {
+              id: row.product_id,
+              code: row.product_code ?? '',
+              name: row.product_name ?? '',
             }
           : undefined,
       };

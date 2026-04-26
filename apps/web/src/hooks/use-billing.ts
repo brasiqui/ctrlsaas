@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
-import type { BillingPlan, BillingInfo } from '@/types'
+import type { BillingPlan, BillingInfo, Product } from '@/types'
 import { toast } from '@/lib/toast'
 
 export function usePlans() {
@@ -9,6 +9,16 @@ export function usePlans() {
     queryKey: ['billing', 'plans'],
     queryFn: async () => {
       const response = await api.get<BillingPlan[]>('/billing/plans')
+      return response.data
+    },
+  })
+}
+
+export function useProducts() {
+  return useQuery({
+    queryKey: ['manager', 'products'],
+    queryFn: async () => {
+      const response = await api.get<Product[]>('/manager/products')
       return response.data
     },
   })
